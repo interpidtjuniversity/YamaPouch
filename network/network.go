@@ -195,6 +195,15 @@ func DeleteNetwork(networkName string) error {
 	return nw.remove(defaultNetworkPath)
 }
 
+func DeleteContainerIp(netWorkName string, ip string) error{
+	nw, ok := networks[netWorkName]
+	if !ok {
+		return fmt.Errorf("No Such Network: %s", netWorkName)
+	}
+	ipAddr := net.ParseIP(ip)
+	return ipAllocator.Release(nw.IpRange, &ipAddr)
+}
+
 func enterContainerNetns(enLink *netlink.Link, cinfo *container.ContainerInfo) func() {
 	f, err := os.OpenFile(fmt.Sprintf("/proc/%s/ns/net", cinfo.Pid), os.O_RDONLY, 0)
 	if err != nil {
@@ -304,16 +313,16 @@ func configPortMapping(ep *Endpoint, cinfo *container.ContainerInfo) error {
 	return nil
 }
 
-func Connect(networkName string, cinfo *container.ContainerInfo) error {
+func Connect(networkName string, cinfo *container.ContainerInfo) (net.IP, error) {
 	network, ok := networks[networkName]
 	if !ok {
-		return fmt.Errorf("No Such Network: %s", networkName)
+		return nil, fmt.Errorf("No Such Network: %s", networkName)
 	}
 
 	// 分配容器IP地址
 	ip, err := ipAllocator.Allocate(network.IpRange)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	// 创建网络端点
@@ -325,14 +334,38 @@ func Connect(networkName string, cinfo *container.ContainerInfo) error {
 	}
 	// 调用网络驱动挂载和配置网络端点
 	if err = drivers[network.Driver].Connect(network, ep); err != nil {
-		return err
+		return nil, err
 	}
 	// 到容器的namespace配置容器网络设备IP地址
 	if err = configEndpointIpAddressAndRoute(ep, cinfo); err != nil {
+		return nil, err
+	}
+
+	return ip, configPortMapping(ep, cinfo)
+}
+
+func Reconnect(networkName string, cinfo *container.ContainerInfo) error {
+	network, ok := networks[networkName]
+	if !ok {
+		return fmt.Errorf("No Such Network: %s", networkName)
+	}
+	// 创建网络端点
+	ep := &Endpoint{
+		ID: fmt.Sprintf("%s-%s", cinfo.Id, networkName),
+		IPAddress: net.ParseIP(cinfo.Ip),
+		Network: network,
+		PortMapping: cinfo.PortMapping,
+	}
+	// 调用网络驱动挂载和配置网络端点
+	if err := drivers[network.Driver].Connect(network, ep); err != nil {
+		return err
+	}
+	// 到容器的namespace配置容器网络设备IP地址
+	if err := configEndpointIpAddressAndRoute(ep, cinfo); err != nil {
 		return err
 	}
 
-	return configPortMapping(ep, cinfo)
+	return nil
 }
 
 func Disconnect(networkName string, cinfo *container.ContainerInfo) error {

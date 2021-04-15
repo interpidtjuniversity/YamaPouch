@@ -1,11 +1,11 @@
 package container
 
 import (
+	"fmt"
 	log "github.com/Sirupsen/logrus"
 	"os"
 	"os/exec"
 	"strings"
-	"fmt"
 )
 
 //Create a AUFS filesystem as container root workspace
@@ -62,7 +62,7 @@ func MountVolume(volumeURLs []string, containerName string) error {
 	}
 	containerUrl := volumeURLs[1]
 	mntURL := fmt.Sprintf(MntUrl, containerName)
-	containerVolumeURL := mntURL + "/" +  containerUrl
+	containerVolumeURL := mntURL + "/" + containerUrl
 	if err := os.Mkdir(containerVolumeURL, 0777); err != nil {
 		log.Infof("Mkdir container dir %s error. %v", containerVolumeURL, err)
 	}
@@ -75,7 +75,7 @@ func MountVolume(volumeURLs []string, containerName string) error {
 	return nil
 }
 
-func CreateMountPoint(containerName , imageName string) error {
+func CreateMountPoint(containerName, imageName string) error {
 	mntUrl := fmt.Sprintf(MntUrl, containerName)
 	if err := os.MkdirAll(mntUrl, 0777); err != nil {
 		log.Errorf("Mkdir mountpoint dir %s error. %v", mntUrl, err)
@@ -101,21 +101,23 @@ func DeleteWorkSpace(volume, containerName string) {
 		if length == 2 && volumeURLs[0] != "" && volumeURLs[1] != "" {
 			DeleteMountPointWithVolume(volumeURLs, containerName)
 		} else {
+			// in stop command we have already umount, so just remove it
 			DeleteMountPoint(containerName)
 		}
 	} else {
 		DeleteMountPoint(containerName)
 	}
 	DeleteWriteLayer(containerName)
+
 }
 
 func DeleteMountPoint(containerName string) error {
 	mntURL := fmt.Sprintf(MntUrl, containerName)
-	_, err := exec.Command("umount", mntURL).CombinedOutput()
-	if err != nil {
-		log.Errorf("Unmount %s error %v", mntURL, err)
-		return err
-	}
+	//_, err := exec.Command("umount", mntURL).CombinedOutput()
+	//if err != nil {
+	//	log.Errorf("Unmount %s error %v", mntURL, err)
+	//	return err
+	//}
 	if err := os.RemoveAll(mntURL); err != nil {
 		log.Errorf("Remove mountpoint dir %s error %v", mntURL, err)
 		return err
@@ -125,7 +127,7 @@ func DeleteMountPoint(containerName string) error {
 
 func DeleteMountPointWithVolume(volumeURLs []string, containerName string) error {
 	mntURL := fmt.Sprintf(MntUrl, containerName)
-	containerUrl := mntURL + "/" +  volumeURLs[1]
+	containerUrl := mntURL + "/" + volumeURLs[1]
 	if _, err := exec.Command("umount", containerUrl).CombinedOutput(); err != nil {
 		log.Errorf("Umount volume %s failed. %v", containerUrl, err)
 		return err

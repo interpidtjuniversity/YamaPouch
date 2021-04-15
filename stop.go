@@ -1,14 +1,16 @@
 package main
 
 import (
-	log "github.com/Sirupsen/logrus"
-	"syscall"
-	"strconv"
 	"./container"
-	"fmt"
-	"io/ioutil"
+	"./network"
 	"encoding/json"
+	"fmt"
+	log "github.com/Sirupsen/logrus"
+	"io/ioutil"
 	"os"
+	"os/exec"
+	"strconv"
+	"syscall"
 )
 
 func stopContainer(containerName string) {
@@ -26,7 +28,7 @@ func stopContainer(containerName string) {
 		log.Errorf("Stop container %s error %v", containerName, err)
 		return
 	}
-	containerInfo, err := getContainerInfoByName(containerName)
+	containerInfo, err := GetContainerInfoByName(containerName)
 	if err != nil {
 		log.Errorf("Get container %s info error %v", containerName, err)
 		return
@@ -43,9 +45,15 @@ func stopContainer(containerName string) {
 	if err := ioutil.WriteFile(configFilePath, newContentBytes, 0622); err != nil {
 		log.Errorf("Write file %s error", configFilePath, err)
 	}
+	// umount
+	mntURL := fmt.Sprintf(container.MntUrl, containerName)
+	_, err = exec.Command("umount", mntURL).CombinedOutput()
+	if err != nil {
+		log.Errorf("Stop Unmount %s error %v", mntURL, err)
+	}
 }
 
-func getContainerInfoByName(containerName string) (*container.ContainerInfo, error) {
+func GetContainerInfoByName(containerName string) (*container.ContainerInfo, error) {
 	dirURL := fmt.Sprintf(container.DefaultInfoLocation, containerName)
 	configFilePath := dirURL + container.ConfigName
 	contentBytes, err := ioutil.ReadFile(configFilePath)
@@ -62,11 +70,16 @@ func getContainerInfoByName(containerName string) (*container.ContainerInfo, err
 }
 
 func removeContainer(containerName string) {
-	containerInfo, err := getContainerInfoByName(containerName)
+	containerInfo, err := GetContainerInfoByName(containerName)
 	if err != nil {
 		log.Errorf("Get container %s info error %v", containerName, err)
 		return
 	}
+	err = network.DeleteContainerIp(containerInfo.NetWorkName, containerInfo.Ip)
+	if err != nil {
+		log.Errorf("Delete container network error, networkname %s, container ip %s", containerInfo.NetWorkName, containerInfo.Ip)
+	}
+
 	if containerInfo.Status != container.STOP {
 		log.Errorf("Couldn't remove running container")
 		return

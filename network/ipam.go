@@ -1,12 +1,12 @@
 package network
 
 import (
+	"encoding/json"
+	log "github.com/Sirupsen/logrus"
 	"net"
 	"os"
 	"path"
 	"strings"
-	"encoding/json"
-	log "github.com/Sirupsen/logrus"
 )
 
 const ipamDefaultAllocatorPath = "/var/run/mydocker/network/ipam/subnet.json"

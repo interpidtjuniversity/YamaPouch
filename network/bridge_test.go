@@ -38,7 +38,7 @@ func TestNetworkConnect(t *testing.T) {
 	Init()
 
 	networks[n.Name] = n
-	err = Connect(n.Name, cInfo)
+	_,err = Connect(n.Name, cInfo)
 	t.Logf("err: %v", err)
 }
 

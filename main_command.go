@@ -1,12 +1,12 @@
 package main
 
 import (
-	"fmt"
-	log "github.com/Sirupsen/logrus"
-	"github.com/urfave/cli"
 	"./cgroups/subsystems"
 	"./container"
 	"./network"
+	"fmt"
+	log "github.com/Sirupsen/logrus"
+	"github.com/urfave/cli"
 	"os"
 )
 
@@ -92,6 +92,130 @@ var runCommand = cli.Command{
 	},
 }
 
+var deployCommand = cli.Command{
+	Name: "deploy",
+	Usage: "Run a application command in a container",
+	Flags: []cli.Flag{
+		cli.StringFlag{
+			Name: "name",
+			Usage: "container name",
+		},
+		cli.StringFlag{
+			Name: "app-log-path",
+			Usage: "app-log-path",
+		},
+		cli.StringFlag{
+			Name: "deploy-path",
+			Usage: "deploy-path",
+		},
+		cli.BoolFlag{
+			Name: "kill",
+			Usage: "kill",
+		},
+	},
+	Action: func(context *cli.Context) error{
+		//This is for callback
+		if os.Getenv(ENV_EXEC_PID) != "" {
+			log.Infof("pid callback pid %s", os.Getgid())
+			return nil
+		}
+		if len(context.Args()) < 2 {
+			return fmt.Errorf("Missing command or arguments")
+		}
+
+		containerName := context.String("name")
+		appLogPath := context.String("app-log-path")
+		deployPath := context.String("deploy-path")
+		kill := context.Bool("kill")
+		if containerName == "" || appLogPath == "" || deployPath == ""{
+			return fmt.Errorf("every flag needs, %s,%s,%s","name","deploy-path","app-log-path")
+		}
+		// TODO check if container is exist
+		//
+		var k int
+		if kill{
+			k = 1
+		}
+		var command []string
+		command = append(command, context.Args().Get(0))
+		command = append(command, context.Args().Tail()...)
+		DeployAppInContainer(containerName, appLogPath, deployPath, command, k)
+		return nil
+	},
+}
+
+var startCommand = cli.Command {
+	Name: "start",
+	Usage: "Start a container which is stopped and reuse it's network",
+	Flags: []cli.Flag {
+		cli.BoolFlag{
+			Name:  "ti",
+			Usage: "enable tty",
+		},
+		cli.BoolFlag{
+			Name:  "d",
+			Usage: "detach container",
+		},
+		cli.StringFlag{
+			Name:  "m",
+			Usage: "memory limit",
+		},
+		cli.StringFlag{
+			Name:  "cpushare",
+			Usage: "cpushare limit",
+		},
+		cli.StringFlag{
+			Name:  "cpuset",
+			Usage: "cpuset limit",
+		},
+		cli.StringFlag{
+			Name:  "name",
+			Usage: "container name",
+		},
+		cli.StringFlag{
+			Name:  "v",
+			Usage: "volume",
+		},
+		cli.StringSliceFlag{
+			Name:  "e",
+			Usage: "set environment",
+		},
+	},
+	Action: func(context *cli.Context) error{
+		if len(context.Args()) < 1 {
+			return fmt.Errorf("Missing container command")
+		}
+		var cmdArray []string
+		for _, arg := range context.Args() {
+			cmdArray = append(cmdArray, arg)
+		}
+
+		//get image name
+		imageName := cmdArray[0]
+		cmdArray = cmdArray[1:]
+
+		createTty := context.Bool("ti")
+		detach := context.Bool("d")
+
+		if createTty && detach {
+			return fmt.Errorf("ti and d paramter can not both provided")
+		}
+		resConf := &subsystems.ResourceConfig{
+			MemoryLimit: context.String("m"),
+			CpuSet:      context.String("cpuset"),
+			CpuShare:    context.String("cpushare"),
+		}
+		log.Infof("createTty %v", createTty)
+		containerName := context.String("name")
+		volume := context.String("v")
+
+		envSlice := context.StringSlice("e")
+
+		Start(createTty, cmdArray, resConf, containerName, volume, imageName, envSlice)
+		return nil
+	},
+}
+
 var initCommand = cli.Command{
 	Name:  "init",
 	Usage: "Init container process run user's process in container. Do not call it outside",
@@ -167,6 +291,7 @@ var removeCommand = cli.Command{
 		if len(context.Args()) < 1 {
 			return fmt.Errorf("Missing container name")
 		}
+		network.Init()
 		containerName := context.Args().Get(0)
 		removeContainer(containerName)
 		return nil
