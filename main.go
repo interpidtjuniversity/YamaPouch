@@ -27,6 +27,7 @@ func main() {
 		networkCommand,
 		deployCommand,
 		startCommand,
+		buildImageCommand,
 	}
 
 	app.Before = func(context *cli.Context) error {

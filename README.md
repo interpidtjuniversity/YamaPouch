@@ -26,5 +26,8 @@ simple app container like docker and pouch
 ##### command : pouch rm {containername}
 ##### sample : pouch rm spring-prod01
 
+## build image
+##### command : pouch build --input {baseimagepath} --output {outputimagepath} --executable {executable path}
+##### sample : pouch build --input /root/JavaContainer.tar --output /root/testapp_0410_release.tar --executable /root/demo.jar,/root/test.jar,/boot.sh
 
 

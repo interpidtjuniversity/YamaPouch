@@ -312,6 +312,37 @@ var commitCommand = cli.Command{
 	},
 }
 
+// pouch build --base xxx --executable xxx
+var buildImageCommand = cli.Command{
+	Name: "build",
+	Usage: "tar executable file into image",
+	Flags: []cli.Flag {
+		cli.StringSliceFlag{
+			Name: "executable",
+			Usage: "executable file in image",
+		},
+		cli.StringFlag{
+			Name: "input",
+			Usage: "base image path",
+		},
+		cli.StringFlag{
+			Name: "output",
+			Usage: "build image path",
+		},
+	},
+	Action: func(context *cli.Context) error{
+
+		input := context.String("input")
+		output := context.String("output")
+
+		executables := context.StringSlice("executable")
+		if input == "" || output == ""{
+			return fmt.Errorf("input and output must be specified")
+		}
+		return BuildImage(input, output, executables)
+	},
+}
+
 var networkCommand = cli.Command{
 	Name:  "network",
 	Usage: "container network commands",
