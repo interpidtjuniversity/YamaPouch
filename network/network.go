@@ -304,7 +304,7 @@ func configPortMapping(ep *Endpoint, cinfo *container.ContainerInfo) error {
 		cmd := exec.Command("iptables", strings.Split(iptablesCmd, " ")...)
 		//err := cmd.Run()
 		output, err := cmd.Output()
-		debug(ep.IPAddress.String())
+		//debug(ep.IPAddress.String())
 		if err != nil {
 			logrus.Errorf("iptables Output, %v", output)
 			continue

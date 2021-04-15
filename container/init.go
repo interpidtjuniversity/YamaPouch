@@ -26,7 +26,7 @@ func RunContainerInitProcess() error {
 	}
 	log.Infof("Find path %s", path)
 	if err := syscall.Exec(path, cmdArray[0:], os.Environ()); err != nil {
-		log.Errorf(err.Error())
+		log.Errorf("Run init process error : %v",err.Error())
 	}
 	return nil
 }

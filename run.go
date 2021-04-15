@@ -1,13 +1,13 @@
 package main
 
 import (
-	"encoding/json"
-	"fmt"
-	log "github.com/Sirupsen/logrus"
 	"./cgroups"
 	"./cgroups/subsystems"
 	"./container"
 	"./network"
+	"encoding/json"
+	"fmt"
+	log "github.com/Sirupsen/logrus"
 	"math/rand"
 	"os"
 	"strconv"
@@ -53,7 +53,7 @@ func Run(tty bool, comArray []string, res *subsystems.ResourceConfig, containerN
 			log.Errorf("Error Connect Network %v", err)
 			return
 		}
-		if ip!=nil {
+		if ip != nil {
 			log.Infof("current container ip is %s", ip.String())
 			//record container info
 			recordContainerInfo(parent.Process.Pid, comArray, containerName, containerID, volume, portmapping, ip.String(), nw)
@@ -105,7 +105,7 @@ func Start(tty bool, comArray []string, res *subsystems.ResourceConfig, containe
 			log.Errorf("Error Connect Network %v", err)
 			return
 		}
-		if containerInfo.Ip!="" {
+		if containerInfo.Ip != "" {
 			log.Infof("current container ip is %s", containerInfo.Ip)
 			//update container info
 			updateContainerInfo(parent.Process.Pid, comArray, containerName, containerID, volume, containerInfo.PortMapping, containerInfo.Ip, containerInfo.NetWorkName)
@@ -141,7 +141,7 @@ func recordContainerInfo(containerPID int, commandArray []string, containerName,
 		Name:        containerName,
 		Volume:      volume,
 		PortMapping: portmapping,
-		Ip: ip,
+		Ip:          ip,
 		NetWorkName: netWorkName,
 	}
 
@@ -184,7 +184,7 @@ func updateContainerInfo(containerPID int, commandArray []string, containerName,
 		Name:        containerName,
 		Volume:      volume,
 		PortMapping: portmapping,
-		Ip: ip,
+		Ip:          ip,
 		NetWorkName: netWorkName,
 	}
 

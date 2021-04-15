@@ -6,17 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="c85309be-258c-412e-8304-f36e550dcc94" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/container/container_process.go" beforeDir="false" afterPath="$PROJECT_DIR$/container/container_process.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/container/volume.go" beforeDir="false" afterPath="$PROJECT_DIR$/container/volume.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/list.go" beforeDir="false" afterPath="$PROJECT_DIR$/list.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/main_command.go" beforeDir="false" afterPath="$PROJECT_DIR$/main_command.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/network/bridge_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/network/bridge_test.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/network/ipam.go" beforeDir="false" afterPath="$PROJECT_DIR$/network/ipam.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/network/ipam_test.go" beforeDir="false" afterPath="$PROJECT_DIR$/network/ipam_test.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/network/network.go" beforeDir="false" afterPath="$PROJECT_DIR$/network/network.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/container/init.go" beforeDir="false" afterPath="$PROJECT_DIR$/container/init.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/mydocker" beforeDir="false" afterPath="$PROJECT_DIR$/mydocker" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/run.go" beforeDir="false" afterPath="$PROJECT_DIR$/run.go" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/stop.go" beforeDir="false" afterPath="$PROJECT_DIR$/stop.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -211,11 +203,6 @@
           <url>file://$PROJECT_DIR$/network/network.go</url>
           <line>282</line>
           <option name="timeStamp" value="11" />
-        </line-breakpoint>
-        <line-breakpoint enabled="true" type="DlvLineBreakpoint">
-          <url>file://$PROJECT_DIR$/container/init.go</url>
-          <line>21</line>
-          <option name="timeStamp" value="13" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DlvLineBreakpoint">
           <url>file://$PROJECT_DIR$/network/ipam_test.go</url>
