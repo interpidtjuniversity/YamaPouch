@@ -43,6 +43,10 @@ __attribute__((constructor)) void enteranddeploy_namespace(void) {
 		close(fd);
 	}
 
+	// kill time before procecss and reexecute it
+	char *needKill;
+	needKill = getenv("mydocker_deploy_kill_pretreatment");
+
 	char *mydocker_deploy_log_path;
 	mydocker_deploy_log_path = getenv("mydocker_deploy_log_path");
 	// create deploy script
@@ -51,6 +55,23 @@ __attribute__((constructor)) void enteranddeploy_namespace(void) {
         return;
     }
     fprintf(fpWrite,"%s","#!/bin/bash\n");
+	if (needKill) {
+		pid_t pid;
+		FILE *fp = NULL;
+		fp = fopen(mydocker_deploy_process_pid_path, "r");
+		if(fp==NULL){
+        	return;
+    	}
+		char buff[255];
+		fscanf(fp, "%s", buff);
+		int num = atoi(buff);
+		fprintf(fpWrite,"children=$(ps --ppid %d | awk '{if($1~/[0-9]+/) print $1}')\n", num);
+    	fprintf(fpWrite,"kill -15 %d\n", num);
+    	fprintf(fpWrite,"%s","for ((i=0;i<${#children[@]};i++))\n");
+    	fprintf(fpWrite,"%s","do\n");
+    	fprintf(fpWrite," %s","kill -15 ${children[i]}\n");
+    	fprintf(fpWrite,"%s","done\n");
+	}
     fprintf(fpWrite,"echo $$ > \"%s\"\n",mydocker_deploy_process_pid_path);
     fprintf(fpWrite,"%s > %s\n",mydocker_deploy_cmd, mydocker_deploy_log_path);
     fclose(fpWrite);

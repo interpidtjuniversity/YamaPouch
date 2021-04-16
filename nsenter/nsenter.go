@@ -7,6 +7,7 @@ package nsenter
 #include <stdlib.h>
 #include <string.h>
 #include <fcntl.h>
+#include <unistd.h>
 
 __attribute__((constructor)) void enter_namespace(void) {
 	char *mydocker_pid;

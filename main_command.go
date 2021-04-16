@@ -108,6 +108,10 @@ var deployCommand = cli.Command{
 			Name: "deploy-path",
 			Usage: "deploy-path",
 		},
+		cli.BoolFlag{
+			Name: "kill",
+			Usage: "kill",
+		},
 	},
 	Action: func(context *cli.Context) error{
 		//This is for callback
@@ -122,6 +126,7 @@ var deployCommand = cli.Command{
 		containerName := context.String("name")
 		appLogPath := context.String("app-log-path")
 		deployPath := context.String("deploy-path")
+		kill := context.Bool("kill")
 		if containerName == "" || appLogPath == "" || deployPath == ""{
 			return fmt.Errorf("every flag needs, %s,%s,%s","name","deploy-path","app-log-path")
 		}
@@ -130,7 +135,7 @@ var deployCommand = cli.Command{
 		var command []string
 		command = append(command, context.Args().Get(0))
 		command = append(command, context.Args().Tail()...)
-		DeployAppInContainer(containerName, appLogPath, deployPath, command)
+		DeployAppInContainer(containerName, appLogPath, deployPath, command, kill)
 		return nil
 	},
 }

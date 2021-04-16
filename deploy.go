@@ -11,8 +11,9 @@ import (
 const ENV_EXEC_DEPLOY_CMD = "mydocker_deploy_cmd"
 const ENV_EXEC_DEPLOY_APP_PATH = "mydocker_deploy_log_path"
 const ENV_EXEC_DEPLOY_PROCESS_PID_PATH = "mydocker_deploy_process_pid_path"
-//                                                                                                    0 false   1 true
-func DeployAppInContainer(containerName string, appLogPath, deployPidPath string, comArray []string) {
+const ENV_EXEC_DEPLOY_APP_KILL_PRETREATMENT = "mydocker_deploy_kill_pretreatment"
+//                                                                                                   0 false   1 true
+func DeployAppInContainer(containerName string, appLogPath, deployPidPath string, comArray []string, kill bool) {
 	pid, err := GetContainerPidByName(containerName)
 	if err != nil {
 		log.Errorf("Exec container getContainerPidByName %s error %v", containerName, err)
@@ -32,12 +33,15 @@ func DeployAppInContainer(containerName string, appLogPath, deployPidPath string
 	os.Setenv(ENV_EXEC_DEPLOY_CMD, cmdStr)
 	os.Setenv(ENV_EXEC_DEPLOY_APP_PATH, appLogPath)
 	os.Setenv(ENV_EXEC_DEPLOY_PROCESS_PID_PATH, deployPidPath)
+	if kill {
+		os.Setenv(ENV_EXEC_DEPLOY_APP_KILL_PRETREATMENT, "true")
+	}
 
 	containerEnvs := getEnvsByPid(pid)
 	cmd.Env = append(os.Environ(), containerEnvs...)
 
 	if err := cmd.Run(); err != nil {
-		log.Errorf("Exec container %s error %v", containerName, err)
+		log.Errorf("Deploy in container %s error %v", containerName, err)
 	}
 }
 
