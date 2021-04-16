@@ -70,7 +70,7 @@ func Run(tty bool, comArray []string, res *subsystems.ResourceConfig, containerN
 
 }
 
-func Start(tty bool, comArray []string, res *subsystems.ResourceConfig, containerName, volume, imageName string,
+func Start(tty bool, comArray []string, res *subsystems.ResourceConfig, containerName string,
 	envSlice []string) {
 	containerInfo, _ := GetContainerInfoByName(containerName)
 	if containerInfo == nil {
@@ -79,7 +79,7 @@ func Start(tty bool, comArray []string, res *subsystems.ResourceConfig, containe
 	}
 	containerID := randStringBytes(10)
 
-	parent, writePipe := container.NewParentProcess(tty, containerName, volume, imageName, envSlice)
+	parent, writePipe := container.RestartParentProcess(tty, containerName, envSlice)
 	if parent == nil {
 		log.Errorf("New parent process error")
 		return
@@ -108,7 +108,7 @@ func Start(tty bool, comArray []string, res *subsystems.ResourceConfig, containe
 		if containerInfo.Ip != "" {
 			log.Infof("current container ip is %s", containerInfo.Ip)
 			//update container info
-			updateContainerInfo(parent.Process.Pid, comArray, containerName, containerID, volume, containerInfo.PortMapping, containerInfo.Ip, containerInfo.NetWorkName)
+			updateContainerInfo(parent.Process.Pid, comArray, containerName, containerID, containerInfo.Volume, containerInfo.PortMapping, containerInfo.Ip, containerInfo.NetWorkName)
 		}
 	}
 
@@ -117,7 +117,7 @@ func Start(tty bool, comArray []string, res *subsystems.ResourceConfig, containe
 	if tty {
 		parent.Wait()
 		deleteContainerInfo(containerName)
-		container.DeleteWorkSpace(volume, containerName)
+		container.DeleteWorkSpace(containerInfo.Volume, containerName)
 	}
 
 }

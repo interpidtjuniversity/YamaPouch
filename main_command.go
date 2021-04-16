@@ -108,10 +108,6 @@ var deployCommand = cli.Command{
 			Name: "deploy-path",
 			Usage: "deploy-path",
 		},
-		cli.BoolFlag{
-			Name: "kill",
-			Usage: "kill",
-		},
 	},
 	Action: func(context *cli.Context) error{
 		//This is for callback
@@ -126,21 +122,44 @@ var deployCommand = cli.Command{
 		containerName := context.String("name")
 		appLogPath := context.String("app-log-path")
 		deployPath := context.String("deploy-path")
-		kill := context.Bool("kill")
 		if containerName == "" || appLogPath == "" || deployPath == ""{
 			return fmt.Errorf("every flag needs, %s,%s,%s","name","deploy-path","app-log-path")
 		}
 		// TODO check if container is exist
 		//
-		var k int
-		if kill{
-			k = 1
-		}
 		var command []string
 		command = append(command, context.Args().Get(0))
 		command = append(command, context.Args().Tail()...)
-		DeployAppInContainer(containerName, appLogPath, deployPath, command, k)
+		DeployAppInContainer(containerName, appLogPath, deployPath, command)
 		return nil
+	},
+}
+
+var enhanceCommand = cli.Command{
+	Name: "enhance",
+	Usage: "Send app to container if conflict then remove old",
+	Flags: []cli.Flag{
+		cli.StringFlag{
+			Name: "name",
+			Usage: "name of the container to enhance",
+		},
+		cli.StringSliceFlag{
+			Name: "executable",
+			Usage: "enhancer",
+		},
+		cli.StringFlag{
+			Name: "storepath",
+			Usage: "path to store executable",
+		},
+	},
+	Action: func(context *cli.Context) error{
+		containerName := context.String("name")
+		executable := context.StringSlice("executable")
+		storepath := context.String("storepath")
+		if containerName == "" {
+			return fmt.Errorf("container is not specified")
+		}
+		return EnhanceContainer(containerName, executable, storepath)
 	},
 }
 
@@ -172,10 +191,6 @@ var startCommand = cli.Command {
 			Name:  "name",
 			Usage: "container name",
 		},
-		cli.StringFlag{
-			Name:  "v",
-			Usage: "volume",
-		},
 		cli.StringSliceFlag{
 			Name:  "e",
 			Usage: "set environment",
@@ -190,10 +205,6 @@ var startCommand = cli.Command {
 			cmdArray = append(cmdArray, arg)
 		}
 
-		//get image name
-		imageName := cmdArray[0]
-		cmdArray = cmdArray[1:]
-
 		createTty := context.Bool("ti")
 		detach := context.Bool("d")
 
@@ -207,11 +218,10 @@ var startCommand = cli.Command {
 		}
 		log.Infof("createTty %v", createTty)
 		containerName := context.String("name")
-		volume := context.String("v")
 
 		envSlice := context.StringSlice("e")
 
-		Start(createTty, cmdArray, resConf, containerName, volume, imageName, envSlice)
+		Start(createTty, cmdArray, resConf, containerName, envSlice)
 		return nil
 	},
 }

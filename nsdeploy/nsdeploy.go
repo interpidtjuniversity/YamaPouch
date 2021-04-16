@@ -43,37 +43,6 @@ __attribute__((constructor)) void enteranddeploy_namespace(void) {
 		close(fd);
 	}
 
-	// kill time before procecss and reexecute it
-	char *needKill;
-	needKill = getenv("mydocker_deploy_kill_pretreatment");
-	if (needKill == "1") {
-		FILE *fpWrite=fopen("/root/kill.sh","w");
-		if(fpWrite==NULL){
-			return;
-		}
-		fprintf(fpWrite,"%s","#!/bin/bash\n");
-		fprintf(fpWrite,"%s","while read line");
-		fprintf(fpWrite,"%s","do");
-		fprintf(fpWrite," %s","zero=0");
-		fprintf(fpWrite," %s","pid=`expr $zero - $line`");
-		fprintf(fpWrite," %s","kill -SIGTERM -- $pid");
-		fprintf(fpWrite,"done < %s",mydocker_deploy_process_pid_path);
-		fclose(fpWrite);
-		pid_t pid;
-		pid = fork();
-		if (pid == 0) {
-			execl("/bin/bash", "/bin/bash","/root/kill.sh", NULL);
-			exit(0);
-			return;
-		} else if (pid > 0){
-		} else {
-			perror("container kill process fork error");
-			exit(1);
-			return;
-		}
-	}
-
-
 	char *mydocker_deploy_log_path;
 	mydocker_deploy_log_path = getenv("mydocker_deploy_log_path");
 	// create deploy script

@@ -28,6 +28,7 @@ func main() {
 		deployCommand,
 		startCommand,
 		buildImageCommand,
+		enhanceCommand,
 	}
 
 	app.Before = func(context *cli.Context) error {

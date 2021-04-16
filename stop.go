@@ -8,7 +8,6 @@ import (
 	log "github.com/Sirupsen/logrus"
 	"io/ioutil"
 	"os"
-	"os/exec"
 	"strconv"
 	"syscall"
 )
@@ -45,12 +44,7 @@ func stopContainer(containerName string) {
 	if err := ioutil.WriteFile(configFilePath, newContentBytes, 0622); err != nil {
 		log.Errorf("Write file %s error", configFilePath, err)
 	}
-	// umount
-	mntURL := fmt.Sprintf(container.MntUrl, containerName)
-	_, err = exec.Command("umount", mntURL).CombinedOutput()
-	if err != nil {
-		log.Errorf("Stop Unmount %s error %v", mntURL, err)
-	}
+
 }
 
 func GetContainerInfoByName(containerName string) (*container.ContainerInfo, error) {
