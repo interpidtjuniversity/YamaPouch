@@ -75,15 +75,17 @@ func removeContainer(containerName string) {
 		log.Errorf("Get container %s info error %v", containerName, err)
 		return
 	}
-	err = network.DeleteContainerIp(containerInfo.NetWorkName, containerInfo.Ip)
-	if err != nil {
-		log.Errorf("Delete container network error, networkname %s, container ip %s", containerInfo.NetWorkName, containerInfo.Ip)
-	}
 
 	if containerInfo.Status != container.STOP {
 		log.Errorf("Couldn't remove running container")
 		return
 	}
+
+	err = network.DeleteContainerIp(containerInfo)
+	if err != nil {
+		log.Errorf("Delete container network error, networkname %s, container ip %s", containerInfo.NetWorkName, containerInfo.Ip)
+	}
+
 	dirURL := fmt.Sprintf(container.DefaultInfoLocation, containerName)
 	if err := os.RemoveAll(dirURL); err != nil {
 		log.Errorf("Remove file %s error %v", dirURL, err)

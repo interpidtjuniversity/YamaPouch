@@ -195,12 +195,16 @@ func DeleteNetwork(networkName string) error {
 	return nw.remove(defaultNetworkPath)
 }
 
-func DeleteContainerIp(netWorkName string, ip string) error{
-	nw, ok := networks[netWorkName]
-	if !ok {
-		return fmt.Errorf("No Such Network: %s", netWorkName)
+func DeleteContainerIp(cinfo *container.ContainerInfo) error{
+	if err := deletePortMapping(cinfo); err!=nil {
+		return err
 	}
-	ipAddr := net.ParseIP(ip)
+
+	nw, ok := networks[cinfo.NetWorkName]
+	if !ok {
+		return fmt.Errorf("No Such Network: %s", cinfo.NetWorkName)
+	}
+	ipAddr := net.ParseIP(cinfo.Ip)
 	return ipAllocator.Release(nw.IpRange, &ipAddr)
 }
 
@@ -272,6 +276,39 @@ func configEndpointIpAddressAndRoute(ep *Endpoint, cinfo *container.ContainerInf
 	}
 
 	return nil
+}
+
+func deletePortMapping(cinfo *container.ContainerInfo) error {
+	localIp, err := getLocalIPv4Address()
+	if err != nil {
+		logrus.Errorf("error when lookup local ip, %v", err)
+		return err
+	}
+
+	for _, p := range cinfo.PortMapping {
+		portMapping := strings.Split(p, ":")
+		if len(portMapping) != 2 {
+			logrus.Errorf("port mapping format error, %v", p)
+			continue
+		}
+		iptablesCmd := fmt.Sprintf("-t nat -D PREROUTING -d %s -p tcp --dport %s -j DNAT --to-destination %s:%s",
+			localIp, portMapping[0], cinfo.Ip, portMapping[1])
+		exec.Command("iptables", strings.Split(iptablesCmd, " ")...).Run()
+
+		iptablesCmd = fmt.Sprintf("-t nat -D POSTROUTING -d %s -p tcp --dport %s -j SNAT --to %s",
+			cinfo.Ip, portMapping[1], localIp)
+		exec.Command("iptables", strings.Split(iptablesCmd, " ")...).Run()
+
+		iptablesCmd = fmt.Sprintf("-t nat -D OUTPUT -p tcp -d 127.0.0.1 --dport %s -j DNAT --to %s:%s",
+			portMapping[0], cinfo.Ip, portMapping[1])
+		exec.Command("iptables", strings.Split(iptablesCmd, " ")...).Run()
+
+		iptablesCmd = fmt.Sprintf("-t nat -D OUTPUT -p tcp -d %s --dport %s -j DNAT --to %s:%s",
+			localIp, portMapping[0], cinfo.Ip, portMapping[1])
+		exec.Command("iptables", strings.Split(iptablesCmd, " ")...).Run()
+	}
+	return nil
+
 }
 
 func configPortMapping(ep *Endpoint, cinfo *container.ContainerInfo) error {
