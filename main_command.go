@@ -100,14 +100,6 @@ var deployCommand = cli.Command{
 			Name: "name",
 			Usage: "container name",
 		},
-		cli.StringFlag{
-			Name: "app-log-path",
-			Usage: "app-log-path",
-		},
-		cli.StringFlag{
-			Name: "deploy-path",
-			Usage: "deploy-path",
-		},
 		cli.BoolFlag{
 			Name: "kill",
 			Usage: "kill",
@@ -124,10 +116,8 @@ var deployCommand = cli.Command{
 		}
 
 		containerName := context.String("name")
-		appLogPath := context.String("app-log-path")
-		deployPath := context.String("deploy-path")
 		kill := context.Bool("kill")
-		if containerName == "" || appLogPath == "" || deployPath == ""{
+		if containerName == "" {
 			return fmt.Errorf("every flag needs, %s,%s,%s","name","deploy-path","app-log-path")
 		}
 		// TODO check if container is exist
@@ -135,7 +125,7 @@ var deployCommand = cli.Command{
 		var command []string
 		command = append(command, context.Args().Get(0))
 		command = append(command, context.Args().Tail()...)
-		DeployAppInContainer(containerName, appLogPath, deployPath, command, kill)
+		DeployAppInContainer(containerName, command, kill)
 		return nil
 	},
 }

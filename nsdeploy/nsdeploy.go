@@ -12,8 +12,6 @@ package nsdeploy
 __attribute__((constructor)) void enteranddeploy_namespace(void) {
 	char *mydocker_pid;
 	mydocker_pid = getenv("mydocker_pid");
-	char *mydocker_deploy_process_pid_path;
-	mydocker_deploy_process_pid_path = getenv("mydocker_deploy_process_pid_path");
 	if (mydocker_pid) {
 	} else {
 		//fprintf(stdout, "missing mydocker_pid env skip nsenter");
@@ -47,39 +45,23 @@ __attribute__((constructor)) void enteranddeploy_namespace(void) {
 	char *needKill;
 	needKill = getenv("mydocker_deploy_kill_pretreatment");
 
-	char *mydocker_deploy_log_path;
-	mydocker_deploy_log_path = getenv("mydocker_deploy_log_path");
-	// create deploy script
-	FILE *fpWrite=fopen("/root/deploy.sh","w");
-	if(fpWrite==NULL){
-        return;
-    }
-    fprintf(fpWrite,"%s","#!/bin/bash\n");
-	if (needKill) {
-		pid_t pid;
-		FILE *fp = NULL;
-		fp = fopen(mydocker_deploy_process_pid_path, "r");
-		if(fp==NULL){
-        	return;
-    	}
-		char buff[255];
-		fscanf(fp, "%s", buff);
-		int num = atoi(buff);
-		fprintf(fpWrite,"children=$(ps --ppid %d | awk '{if($1~/[0-9]+/) print $1}')\n", num);
-    	fprintf(fpWrite,"kill -15 %d\n", num);
-    	fprintf(fpWrite,"%s","for ((i=0;i<${#children[@]};i++))\n");
-    	fprintf(fpWrite,"%s","do\n");
-    	fprintf(fpWrite," %s","kill -15 ${children[i]}\n");
-    	fprintf(fpWrite,"%s","done\n");
-	}
-    fprintf(fpWrite,"echo $$ > \"%s\"\n",mydocker_deploy_process_pid_path);
-    fprintf(fpWrite,"%s > %s\n",mydocker_deploy_cmd, mydocker_deploy_log_path);
-    fclose(fpWrite);
-
 	pid_t pid;
 	pid = fork();
 	if (pid == 0) {
-		execl("/bin/bash", "/bin/bash","/root/deploy.sh",NULL);
+		if (needKill) {
+			pid_t pid;
+			FILE *fp = NULL;
+			fp = fopen("/root/deploy/pid.txt", "r");
+			if(fp==NULL){
+        		return;
+    		}
+			char buff[255];
+			fscanf(fp, "%s", buff);
+			fclose(fp);
+			execl("/bin/bash", "/bin/bash","/root/deploy/kill-deploy.sh", buff, mydocker_deploy_cmd, NULL);
+		} else {
+			execl("/bin/bash", "/bin/bash","/root/deploy/deploy.sh", mydocker_deploy_cmd, NULL);
+		}
 		exit(0);
         return;
 	} else if (pid > 0){
