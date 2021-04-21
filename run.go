@@ -54,7 +54,7 @@ func Run(tty bool, comArray []string, res *subsystems.ResourceConfig, containerN
 			return
 		}
 		if ip != nil {
-			log.Infof("current container ip is %s", ip.String())
+			log.Infof("ip:%s", ip.String())
 			//record container info
 			recordContainerInfo(parent.Process.Pid, comArray, containerName, containerID, volume, portmapping, ip.String(), nw)
 		}
@@ -106,7 +106,7 @@ func Start(tty bool, comArray []string, res *subsystems.ResourceConfig, containe
 			return
 		}
 		if containerInfo.Ip != "" {
-			log.Infof("current container ip is %s", containerInfo.Ip)
+			log.Infof("ip:%s", containerInfo.Ip)
 			//update container info
 			updateContainerInfo(parent.Process.Pid, comArray, containerName, containerID, containerInfo.Volume, containerInfo.PortMapping, containerInfo.Ip, containerInfo.NetWorkName)
 		}
@@ -130,7 +130,7 @@ func sendInitCommand(comArray []string, writePipe *os.File) {
 }
 
 func recordContainerInfo(containerPID int, commandArray []string, containerName, id, volume string, portmapping []string, ip, netWorkName string) (string, error) {
-	createTime := time.Now().Format("2006-01-02 15:04:05")
+	createTime := time.Now().Format("2006-01-02-15:04:05")
 	command := strings.Join(commandArray, "")
 	containerInfo := &container.ContainerInfo{
 		Id:          id,
@@ -173,7 +173,7 @@ func recordContainerInfo(containerPID int, commandArray []string, containerName,
 }
 
 func updateContainerInfo(containerPID int, commandArray []string, containerName, id, volume string, portmapping []string, ip, netWorkName string) (string, error) {
-	createTime := time.Now().Format("2006-01-02 15:04:05")
+	createTime := time.Now().Format("2006-01-02-15:04:05")
 	command := strings.Join(commandArray, "")
 	containerInfo := &container.ContainerInfo{
 		Id:          id,

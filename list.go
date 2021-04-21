@@ -35,13 +35,14 @@ func ListContainers() {
 	w := tabwriter.NewWriter(os.Stdout, 12, 1, 3, ' ', 0)
 	fmt.Fprint(w, "ID\tNAME\tPID\tSTATUS\tCOMMAND\tCREATED\tPORTMAPPING\tIP\tNETWORKNAME\n")
 	for _, item := range containers {
+		portMapping,_ := json.Marshal(item.PortMapping)
 		fmt.Fprintf(w, "%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\t%s\n",
 			item.Id,
 			item.Name,
 			item.Pid,
 			item.Status,
 			item.Command,
-			item.CreatedTime, item.PortMapping, item.Ip, item.NetWorkName)
+			item.CreatedTime, string(portMapping), item.Ip, item.NetWorkName)
 	}
 	if err := w.Flush(); err != nil {
 		log.Errorf("Flush error %v", err)

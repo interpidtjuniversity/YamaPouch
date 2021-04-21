@@ -253,6 +253,20 @@ var logCommand = cli.Command{
 	},
 }
 
+var appLogCommand = cli.Command{
+	Name: "applogs",
+	Usage: "print latest app running log",
+	Action: func(context *cli.Context) error {
+		if len(context.Args()) < 1 {
+			return fmt.Errorf("Please input your container name")
+		}
+		containerName := context.Args().Get(0)
+		logpath := context.Args().Get(1)
+		appLogContainer(containerName, logpath)
+		return nil
+	},
+}
+
 var execCommand = cli.Command{
 	Name:  "exec",
 	Usage: "exec a command into container",
