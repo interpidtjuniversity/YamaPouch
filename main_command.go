@@ -118,7 +118,7 @@ var deployCommand = cli.Command{
 		containerName := context.String("name")
 		kill := context.Bool("kill")
 		if containerName == "" {
-			return fmt.Errorf("every flag needs, %s,%s,%s","name","deploy-path","app-log-path")
+			return fmt.Errorf("no container specitied")
 		}
 		// TODO check if container is exist
 		//
@@ -126,6 +126,63 @@ var deployCommand = cli.Command{
 		command = append(command, context.Args().Get(0))
 		command = append(command, context.Args().Tail()...)
 		DeployAppInContainer(containerName, command, kill)
+		return nil
+	},
+}
+
+var executeCommand = cli.Command{
+	Name: "execute",
+	Usage: "execute command in container(will return!!!)",
+	Flags: []cli.Flag{
+		cli.StringFlag{
+			Name: "name",
+			Usage: "container name",
+		},
+	},
+	Action: func(context *cli.Context) error{
+		//This is for callback
+		if os.Getenv(ENV_EXEC_PID) != "" {
+			log.Infof("pid callback pid %s", os.Getgid())
+			return nil
+		}
+		if len(context.Args()) < 2 {
+			return fmt.Errorf("Missing command or arguments")
+		}
+		containerName := context.String("name")
+		if containerName == "" {
+			return fmt.Errorf("no container specitied")
+		}
+		var command []string
+		command = append(command, context.Args().Get(0))
+		command = append(command, context.Args().Tail()...)
+		ExecuteCommandInContainer(containerName, command)
+		return nil
+	},
+}
+
+var executeOnceCommand = cli.Command{
+	Name: "executeonce",
+	Usage: "execute batch of command in one process, to avoid process concurrence problems",
+	Flags: []cli.Flag{
+		cli.StringFlag{
+			Name: "name",
+			Usage: "container name",
+		},
+	},
+	Action: func(context *cli.Context) error{
+		//This is for callback
+		if os.Getenv(ENV_EXEC_PID) != "" {
+			log.Infof("pid callback pid %s", os.Getgid())
+			return nil
+		}
+		containerName := context.String("name")
+		if containerName == "" {
+			return fmt.Errorf("no container specitied")
+		}
+		var commands []string
+		commands = append(commands, context.Args().Get(0))
+		commands = append(commands, context.Args().Tail()...)
+		ExecuteBatchCommandOnceInContainer(containerName, commands)
 		return nil
 	},
 }

@@ -30,6 +30,8 @@ func main() {
 		buildImageCommand,
 		enhanceCommand,
 		appLogCommand,
+		executeCommand,
+		executeOnceCommand,
 	}
 
 	app.Before = func(context *cli.Context) error {

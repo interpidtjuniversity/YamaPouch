@@ -6,9 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="c85309be-258c-412e-8304-f36e550dcc94" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/list.go" beforeDir="false" afterPath="$PROJECT_DIR$/list.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main.go" beforeDir="false" afterPath="$PROJECT_DIR$/main.go" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/main_command.go" beforeDir="false" afterPath="$PROJECT_DIR$/main_command.go" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pouch" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/run.go" beforeDir="false" afterPath="$PROJECT_DIR$/run.go" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -25,6 +25,19 @@
   </component>
   <component name="GOROOT" url="file:///usr/lib/go14/go" />
   <component name="Git.Settings">
+    <favorite-branches>
+      <branch-storage>
+        <map>
+          <entry type="LOCAL">
+            <value>
+              <list>
+                <branch-info repo="$PROJECT_DIR$" source="main" />
+              </list>
+            </value>
+          </entry>
+        </map>
+      </branch-storage>
+    </favorite-branches>
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
         <entry key="$PROJECT_DIR$" value="chiling-4.2" />
@@ -86,6 +99,9 @@
       <recent name="$PROJECT_DIR$/vendor/github.com/google" />
       <recent name="$PROJECT_DIR$/vendor/github.com" />
       <recent name="$PROJECT_DIR$/nsdeploy" />
+    </key>
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/nsexecute" />
     </key>
   </component>
   <component name="RunManager" selected="Go Test.TestIPAM_Release in ipam_test.go">
@@ -178,7 +194,7 @@
       <breakpoints>
         <line-breakpoint enabled="true" type="DlvLineBreakpoint">
           <url>file://$PROJECT_DIR$/main.go</url>
-          <line>45</line>
+          <line>48</line>
           <option name="timeStamp" value="3" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="DlvLineBreakpoint">
