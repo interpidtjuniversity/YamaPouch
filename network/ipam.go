@@ -3,6 +3,7 @@ package network
 import (
 	"encoding/json"
 	log "github.com/Sirupsen/logrus"
+	"io/ioutil"
 	"net"
 	"os"
 	"path"
@@ -33,13 +34,12 @@ func (ipam *IPAM) load() error {
 	if err != nil {
 		return err
 	}
-	subnetJson := make([]byte, 2000)
-	n, err := subnetConfigFile.Read(subnetJson)
+	subnetJson, err := ioutil.ReadAll(subnetConfigFile)
 	if err != nil {
 		return err
 	}
 
-	err = json.Unmarshal(subnetJson[:n], ipam.Subnets)
+	err = json.Unmarshal(subnetJson, ipam.Subnets)
 	if err != nil {
 		log.Errorf("Error dump allocation info, %v", err)
 		return err
