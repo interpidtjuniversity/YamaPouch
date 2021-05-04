@@ -74,13 +74,21 @@ var runCommand = cli.Command{
 		if createTty && detach {
 			return fmt.Errorf("ti and d paramter can not both provided")
 		}
+		containerName := context.String("name")
+		// check if containerName is existed
+		containers := ListContainers(false)
+		for _, container := range containers {
+			if container.Name == containerName {
+				return fmt.Errorf("container %s already exist", containerName)
+			}
+		}
+
 		resConf := &subsystems.ResourceConfig{
 			MemoryLimit: context.String("m"),
 			CpuSet:      context.String("cpuset"),
 			CpuShare:    context.String("cpushare"),
 		}
 		log.Infof("createTty %v", createTty)
-		containerName := context.String("name")
 		volume := context.String("v")
 		network := context.String("net")
 
@@ -292,7 +300,7 @@ var listCommand = cli.Command{
 	Name:  "ps",
 	Usage: "list all the containers",
 	Action: func(context *cli.Context) error {
-		ListContainers()
+		ListContainers(true)
 		return nil
 	},
 }
